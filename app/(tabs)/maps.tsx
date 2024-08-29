@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { View, StyleSheet, Text, FlatList, Image } from "react-native";
+import { View, StyleSheet, Text, FlatList, Image, TouchableOpacity } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import * as Location from 'expo-location';
 import { custom_map_style } from '@/constants/CustomMapStyle';
@@ -99,21 +99,22 @@ const Maps = () => {
                 {renderMarkers()}
             </MapView>
 
-            <ListingItems hotels={filteredHotels} />
+         {filteredHotels.length>0?<ListingItems hotels={filteredHotels}  zoomIntoLocation= {handleMarkerPress} />:null}   
         </View>
     );
 };
 
-const ListingItems = ({ hotels }) => {
+const ListingItems = ({ hotels , zoomIntoLocation }) => {
     const renderItem = ({ item }) => (
-        <View style={styles.listingItem}>
+        
+        <TouchableOpacity style={styles.listingItem}  onPress={()=> zoomIntoLocation(item.latitude, item.longitude)}>
             <Image 
                 source={{ uri: item.photo1 }} 
                 style={styles.listingImage}
             />
-            <Text style={styles.listingName}>{item.name}</Text>
-            <Text style={styles.listingPrice}>{item.hotel_name}</Text>
-        </View>
+            <Text style={styles.listingName}>{item.hotel_name}</Text>
+            <Text style={styles.listingDistance}>{'300 km'}</Text>
+        </TouchableOpacity>
     );
 
     return (
@@ -154,10 +155,13 @@ const styles = StyleSheet.create({
         elevation: 5,
         borderRadius: 15,
         padding: 10,
+        width:'auto',
+        
     },
     listingItem: {
         width: 120,
         marginRight: 10,
+       
     },
     listingImage: {
         width: '100%',
@@ -169,7 +173,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginTop: 5,
     },
-    listingPrice: {
+    listingDistance: {
         fontSize: 12,
         color: '#C1292E',
     },
