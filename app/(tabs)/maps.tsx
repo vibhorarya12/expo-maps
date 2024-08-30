@@ -99,7 +99,7 @@ const Maps = () => {
                 {renderMarkers()}
             </MapView>
 
-         {filteredHotels.length>0?<ListingItems hotels={filteredHotels}  zoomIntoLocation= {handleMarkerPress} />:null}   
+         {/* {filteredHotels.length>0?<ListingItems hotels={filteredHotels}  zoomIntoLocation= {handleMarkerPress} />:null}    */}
         </View>
     );
 };
