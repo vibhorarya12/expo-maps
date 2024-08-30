@@ -4,14 +4,18 @@ import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import * as Location from 'expo-location';
 import { custom_map_style } from '@/constants/CustomMapStyle';
 import { hotelData } from '@/constants/hotelsData';
-
+import * as Animatable from 'react-native-animatable';
 const Maps = () => {
     const [location, setLocation] = useState(null);
     const [errorMsg, setErrorMsg] = useState(null);
     const [visibleRegion, setVisibleRegion] = useState(null);
     const mapRef = useRef(null);
+    const [showHotelCard, setShowHotelCard] = useState(false);
+    const [currentCard, SetCurrentCard] = useState({img:'', name:''});
 
-    const handleMarkerPress = (latitude, longitude) => {
+    const handleMarkerPress = (latitude, longitude , hotelImg, hotelName) => {
+        SetCurrentCard({img:hotelImg, name:hotelName})
+        setShowHotelCard(true);
         mapRef.current.animateToRegion(
             {
                 latitude,
@@ -56,7 +60,7 @@ const Maps = () => {
                 key={index}
                 coordinate={{ latitude: item.latitude, longitude: item.longitude }}
                 tracksViewChanges={false}
-                onPress={() => handleMarkerPress(item.latitude, item.longitude)}
+                onPress={() => handleMarkerPress(item.latitude, item.longitude, item.photo1, item.hotel_name)}
             >
                 <View style={styles.markerView}>
                     <Text style={styles.markerText}>{"$" + item.rates_from}</Text>
@@ -99,17 +103,44 @@ const Maps = () => {
                 {renderMarkers()}
             </MapView>
 
-         {/* {filteredHotels.length>0?<ListingItems hotels={filteredHotels}  zoomIntoLocation= {handleMarkerPress} />:null}    */}
+            {showHotelCard && <HotelCard setShowHotelCard={setShowHotelCard} item ={currentCard} />}
         </View>
     );
 };
 
-const ListingItems = ({ hotels , zoomIntoLocation }) => {
+
+const HotelCard = ({ setShowHotelCard ,item}) => {
+
+
+    return (<Animatable.View animation="slideInUp" direction="alternate" style={styles.listingsItemsContainer} >
+        <TouchableOpacity onPress={() => setShowHotelCard(false)} style={styles.cancelBtn}>
+            <Text style={{ fontSize: 20, color: '#fff' }}>X</Text>
+        </TouchableOpacity>
+        <Image
+                source={{ uri: item.img }}
+                style={styles.listingImage}
+            />
+            <Text style={styles.listingName}>{item.name}</Text>
+    </Animatable.View>)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+const ListingItems = ({ hotels, zoomIntoLocation }) => {
     const renderItem = ({ item }) => (
-        
-        <TouchableOpacity style={styles.listingItem}  onPress={()=> zoomIntoLocation(item.latitude, item.longitude)}>
-            <Image 
-                source={{ uri: item.photo1 }} 
+
+        <TouchableOpacity style={styles.listingItem} onPress={() => zoomIntoLocation(item.latitude, item.longitude)}>
+            <Image
+                source={{ uri: item.photo1 }}
                 style={styles.listingImage}
             />
             <Text style={styles.listingName}>{item.hotel_name}</Text>
@@ -146,7 +177,7 @@ const styles = StyleSheet.create({
         color: '#fff',
     },
     listingsItemsContainer: {
-        height: 150,
+        height: 200,
         backgroundColor: '#fff',
         position: 'absolute',
         bottom: 20,
@@ -155,17 +186,17 @@ const styles = StyleSheet.create({
         elevation: 5,
         borderRadius: 15,
         padding: 10,
-        width:'auto',
-        
+        width: 'auto',
+
     },
     listingItem: {
         width: 120,
         marginRight: 10,
-       
+
     },
     listingImage: {
         width: '100%',
-        height: 80,
+        height: 120,
         borderRadius: 10,
     },
     listingName: {
@@ -177,6 +208,16 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: '#C1292E',
     },
+    cancelBtn: {
+        backgroundColor: 'grey', width: 30,
+        justifyContent: 'center', alignItems: 'center',
+        borderRadius: 10,
+        position:'absolute',
+        right:5,
+        top:2,
+        opacity:0.7,
+        zIndex:2
+    }
 });
 
 export default Maps;
